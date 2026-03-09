@@ -5,6 +5,29 @@ last_update: 2026-03-09
 
 # Correct Structuring
 
+## Purpose
+
+This file contains guidelines for how to correctly structure your code.
+Although the examples are in Python, the principles apply to any programming language.
+
+## Table of Contents
+
+1. [Order](#order)
+2. [Default Values](#default-values)
+3. [End cases](#end-cases)
+4. [Don't Repeat Yourself](#don't-repeat-yourself)
+   1. [Example 1](#example-1)
+   2. [Example 2](#example-2)
+5. [Utilities Instead of Code Idioms](#utilities-instead-of-code-idioms)
+6. [Write Logic-Level / High-Level Code](#write-logic-level-/-high-level-code)
+7. [Encapsulation](#encapsulation)
+   1. [Put in a class](#put-in-a-class)
+   2. [Information Hiding](#information-hiding)
+   3. [Use class members instead of passing values around](#use-class-members-instead-of-passing-values-around)
+8. [Single-Responsibility Principle](#single-responsibility-principle)
+   1. [Separate Builder from Object](#separate-builder-from-object)
+9. [More](#more)
+
 <a id="order"/>
 
 ## 1. Order
