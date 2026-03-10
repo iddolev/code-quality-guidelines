@@ -352,32 +352,36 @@ This has less indentation, and is easier to debug.
 
 When you have a chain of `if/elif` branches, put the most common case first. This makes the code easier to read because the reader encounters the typical path before the edge cases.
 
-For example, instead of:
+For example, suppose you are handling HTTP responses where the vast majority are successful. Instead of leading with rare error cases:
 
 ```python
-def classify(score):
-    if score < 0:
-        return "invalid"
-    elif score >= 90:
-        return "excellent"
-    elif score >= 70:
-        return "good"
+def handle_response(status_code):
+    if status_code == 401:
+        reauthenticate()
+    elif status_code == 403:
+        raise PermissionError("forbidden")
+    elif status_code == 404:
+        raise LookupError("not found")
+    elif status_code == 200:
+        process_response()
     else:
-        return "needs improvement"
+        raise RuntimeError(f"unexpected status: {status_code}")
 ```
 
-if most scores fall in the "needs improvement" range, write:
+put the common case first:
 
 ```python
-def classify(score):
-    if 0 <= score < 70:
-        return "needs improvement"
-    elif score < 90:
-        return "good"
-    elif score >= 90:
-        return "excellent"
+def handle_response(status_code):
+    if status_code == 200:
+        process_response()
+    elif status_code == 401:
+        reauthenticate()
+    elif status_code == 403:
+        raise PermissionError("forbidden")
+    elif status_code == 404:
+        raise LookupError("not found")
     else:
-        return "invalid"
+        raise RuntimeError(f"unexpected status: {status_code}")
 ```
 
 Note: If this rule contradicts the previous rule [Put the smaller `if` case first](#put-the-smaller-if-case-first), then it's a judgment call: Prefer the previous rule if it's more pronounced.
