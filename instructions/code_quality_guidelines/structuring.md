@@ -725,19 +725,28 @@ found_matches = {line_num: self.first_longest_element(values)
                  for line_num, values in section.items()}
 ```
 
-In this code, you can easily see at a high-level the main thing the code is doing: applying `first_longest_element` on each value of the dict. So you clearly see the two main things going on here:
-the algorithm (for-loop on a dict), and the inner operation (`first_longest_element`). Also, the operation has a descriptive name which clearly shows what it does. Now we add:
+In this code, you can easily see at a high-level the main thing the code is doing: 
+applying `first_longest_element` on each value of the dict. So you clearly see the two main things going on here:
+the algorithm (for-loop on a dict), and the inner operation (`first_longest_element`). 
+Also, the operation has a descriptive name which clearly shows what it does. 
+
+The second step of refactoring is to define `first_longest_element`:
+
+```python
+def first_longest_element(values: List[TagElement]) -> TagElement:
+    return max(values, key=lambda element: element.end_pos - element.start_pos)
+```
+
+In `first_longest_element`, instead of doing this calculation using low-level operations 
+(remembering the max value seen so far, comparing using `<=`, etc.), we use the high-level operator `max`.
+However, the value we gave here to the `key` parameter violates the [encapsulation](#encapsulation) principle:
+the lambda expression essentially calculates the length property of an element, 
+and that should be defined in the class itself. So we do this:
 
 ```python
 def first_longest_element(values: List[TagElement]) -> TagElement:
     return max(values, key=TagElement.__len__)
-```
 
-Here, instead of doing this calculation using low-level operations (remembering the max value seen so far, comparing using `<=`, etc.), we use the high-level operator `max`. If we don't want `max` directly on the value, we can use the `key` argument and give it:
-`lambda element: 1 + element.end_pos - element.start_pos`.
-But that is too specific to be defined here - according to OOP, the property of an element (such as its length) should be defined in the class itself. So we add a `__len__` method to the TagElement class:
-
-```python
 class TagElement:
     ...
     def __len__(self) -> int:
