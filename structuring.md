@@ -65,10 +65,20 @@ Specifically in Python, follow the conventions defined in <a href="https://peps.
 
 Beyond following a convention table, keep these principles in mind:
 
-1. **Use descriptive names.** A variable name should convey its purpose. Prefer `remaining_attempts` over `r` or `tmp`. Single-letter names are acceptable only for short-lived loop indices or well-known conventions (e.g. `i`, `x`, `df`).
-2. **Booleans should read as conditions.** Use prefixes like `is_`, `has_`, `should_`, or `can_` so that `if` statements read naturally, e.g. `if is_valid:` rather than `if valid:`.
+1. **Be consistent across the codebase.** If one module calls it `user_id`, don't call it `userId` or `uid` elsewhere. Pick one term for each concept and stick with it.
+2. **Use descriptive names.** A variable name should convey its purpose. Prefer `remaining_attempts` over `r` or `tmp`. Single-letter names are acceptable only for short-lived loop indices or well-known conventions (e.g. `i`, `x`, `df`).
 3. **Avoid abbreviations** unless they are universally understood in the domain (e.g. `url`, `html`, `db`). Prefer `configuration` over `cfg`, `message` over `msg`.
-4. **Be consistent across the codebase.** If one module calls it `user_id`, don't call it `userId` or `uid` elsewhere. Pick one term for each concept and stick with it.
+4. **Names should match their behavior.** A function named `get_X` indicates that it returns an object X of a relevant type. It’s bad practice to use this name for a function that calculates X (and e.g. puts it in a private class member) and returns `None`. Similarly, `clean_text(text: str) -> List[str]` is a bad name because it doesn’t tell us about the returned list. A correct name would be e.g. `clean_and_tokenize_text`.
+5. **Pay attention to singular/plural names.** A variable containing a list of strings may be called `codes` but (usually) not `code`.
+6. **Booleans should read as conditions.** Use prefixes like `is_`, `has_`, `should_`, or `can_` so that `if` statements read naturally, e.g. `if is_valid:` rather than `if valid:`.
+7. **Function names should be actions, class names should be objects.** E.g. `handle_message` for a function, `MessageHandler` for a class.
+8. **Don’t name a variable with a type that contradicts its content.** This is highly confusing. For example:
+
+```python
+line_elements = tokens[value.start_pos: value.end_pos + 1]
+```
+
+This variable should be called `line_tokens` because it holds `Token` objects, not `Element` objects.
 
 <a id="avoid-magic-values"/>
 
