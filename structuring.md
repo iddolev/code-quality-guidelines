@@ -8,31 +8,133 @@ last_update: 2026-03-09
 ## Purpose
 
 This file contains guidelines for how to correctly structure your code.
-All guidelines are based on real cases observed in code that was 
+All guidelines are based on real cases observed in code that was
 written by junior software engineers and could be improved.
 Although examples are shown in Python, the principles apply to any programming language.
 
 ## Table of Contents
 
-1. [Order](#order)
-2. [Default Values](#default-values)
-3. [End cases](#end-cases)
-4. [Don't Repeat Yourself](#don't-repeat-yourself)
-5. [Utilities Instead of Code Idioms](#utilities-instead-of-code-idioms)
-6. [Write Logic-Level / High-Level Code](#write-logic-level-/-high-level-code)
-7. [Encapsulation](#encapsulation)
+1. [Visual Flow](#visual-flow)
+   1. [Line Splits](#line-splits)
+   2. [Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)
+   3. [Avoid Deep Nesting](#avoid-deep-nesting)
+2. [Order](#order)
+3. [Default Values](#default-values)
+4. [End Cases](#end-cases)
+5. [Don't Repeat Yourself](#don't-repeat-yourself)
+6. [Utilities Instead of Code Idioms](#utilities-instead-of-code-idioms)
+7. [Write Logic-Level / High-Level Code](#write-logic-level-high-level-code)
+8. [Encapsulation](#encapsulation)
    1. [Put in a class](#put-in-a-class)
    2. [Information Hiding](#information-hiding)
    3. [Use class members instead of passing values around](#use-class-members-instead-of-passing-values-around)
-8. [Single-Responsibility Principle](#single-responsibility-principle)
+9. [Single-Responsibility Principle](#single-responsibility-principle)
    1. [Separate Builder from Object](#separate-builder-from-object)
-9. [More](#more)
+10. [More](#more)
+
+<a id="visual-flow"/>
+
+## 1. Visual Flow
+
+<a id="line-splits"/>
+
+### 1.1. Line Splits
+
+Long lines should be split rather than allow them to overflow beyond approx. 100 characters. They should be split in logical places.
+
+In particular, in the definition of a function and the call to a function that has many parameters,
+put each parameter on a separate line. E.g.:
+
+```python
+def __init__(self,
+             input_location: ResourceLocation,
+             limit_number: int,
+             relevant_sections: List[str],
+             parallel_run: bool):
+```
+
+Another example:
+When you have two "for" sections in a comprehension, put each on a separate line. E.g., instead of:
+
+```python
+[tuple(tokens[i:i + k]) for k in self.n_grams for i in range(1 + len(tokens) - k)]
+```
+
+write:
+
+```python
+[tuple(tokens[i:i + k])
+ for k in self.n_grams
+ for i in range(1 + len(tokens) - k)]
+```
+
+**Notice:** Automatic reformatting using PyCharm (Ctrl+Alt+L) sometimes splits lines in bad places, e.g. splits after an opening "\[". So if you use it, please go over the code and make sure lines are split in appropriate places.
+
+<a id="break-long-complex-sections-into-smaller-blocks"/>
+
+### 1.2. Break Long/Complex Sections Into Smaller Blocks
+
+Break large blocks by refactoring into smaller chunks:
+
+1. A file, and a class, should be no longer than about 200 lines.
+2. Any code block, e.g. a function, the body of a for/while loop, etc., should not be longer than 12-15 lines, to ease readability.
+
+<a id="avoid-deep-nesting"/>
+
+### 1.3. Avoid Deep Nesting
+
+Avoid nesting with more than 2 or 3 levels, as it becomes unreadable, and difficult to maintain.
+
+For example, consider this code:
+
+```python
+def get_cutoff():
+    try:
+        with open(EXPLANATIONS_FILE) as f:
+            for line in f:
+                m = re.match(r"last_updated:\s*(.*)", line)
+                if m:
+                    return parse_timestamp(m.group(1))
+    except FileNotFoundError:
+        pass
+    return None
+```
+
+There are 5 levels of nesting here, and it's visually disturbing.
+Also, the concern of `FileNotFoundError` belongs together with opening a file, and not several lines below it.
+A better way of writing this is:
+
+```python
+def _get_cutoff(f: File) -> Optional[datetime]:
+    for line in f:
+        m = re.match(r"last_updated:\s*(.*)", line)
+        if m:
+            return parse_timestamp(m.group(1))
+    return None
+
+def get_cutoff(filepath: str) -> Optional[datetime]:
+    try:
+        with open(filepath) as f:
+            return _get_cutoff(f)
+    except FileNotFoundError:
+        return None
+```
+
+Also often: nested for-loops with 2 levels would be more readable by extracting the body of the outer loop to a separate function (with its own for-loop).
+
+For example, instead of:
+
+example
+
+use:
+
+example
 
 <a id="order"/>
 
-## 1. Order
+## 2. Order
 
-### 1.1. Put the smaller `if` case first
+### 2.1. Put the smaller `if` case first
 
 E.g. instead of
 
@@ -53,7 +155,7 @@ Use:
 ```python
 def func(x):
     if not some_condition(x):
-        do_short(x)   
+        do_short(x)
         return x
     do_1(x)
     do_2(x)
@@ -62,11 +164,11 @@ def func(x):
     return x
 ```
 
-(This has less indentation, and is easier to debug).
+This has less indentation, and is easier to debug.
 
 <a id="default-values"/>
 
-## 2. Default Values
+## 3. Default Values
 
 ### Usually boolean default value should be False and not True
 
@@ -74,7 +176,7 @@ Usually it's bad practice to have a boolean parameter of a function have a defau
 
 <a id="end-cases"/>
 
-## 3. End cases
+## 4. End Cases
 
 Your code should handle all end cases. In particular:
 
@@ -85,13 +187,13 @@ Your code should handle all end cases. In particular:
 
 <a id="don't-repeat-yourself"/>
 
-## 4. Don't Repeat Yourself
+## 5. Don't Repeat Yourself
 
 <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself" target="_blank">Don't Repeat Yourself</a> (DRY): If you see that two sections of code look very similar, factor out the common parts to a function, and call it twice with the different values.
 
 <a id="example-1"/>
 
-### 4.1. Example 1
+### 5.1. Example 1
 
 Here is some code using DataFrames:
 
@@ -127,7 +229,7 @@ Other ideas demonstrated here:
 
 <a id="example-2"/>
 
-### 4.2. Example 2
+### 5.2. Example 2
 
 Here are three similar functions, where `NodeA`, `NodeB`, and `NodeC` are subclasses of `Node`.
 
@@ -172,7 +274,7 @@ Why is this better?
 
 <a id="utilities-instead-of-code-idioms"/>
 
-## 5. Utilities Instead of Code Idioms
+## 6. Utilities Instead of Code Idioms
 
 A "<a href="https://en.wikipedia.org/wiki/Programming_idiom" target="_blank">code Idiom</a>" is a syntactic fragment that recurs frequently across software projects and has a single semantic role. For example in Python, writing a string text into to a text file path, while ensuring the path exists:
 
@@ -189,7 +291,7 @@ with open(path, 'w') as f:
 Such "code idioms" should be avoided because it doesn't make sense that every place requiring this functionality will contain it from scratch. You can easily implement a utilities repository that wraps such low-level functions with logical operations, e.g.: `ensure_path`, `save_text_file`, `delete_path`, etc. Then the code looks cleaner:
 
 ```python
-from utilities import os
+from utilities import ensure_path, save_text_file
 
 path_folder = os.path.dirname(path)
 ensure_path(path, exist_ok=True)
@@ -198,13 +300,13 @@ save_text_file(path, text)
 
 This idea is a special case of the general principle [Don't Repeat Yourself](#don't-repeat-yourself).
 
-<a id="write-logic-level-/-high-level-code"/>
+<a id="write-logic-level-high-level-code"/>
 
-## 6. Write Logic-Level / High-Level Code
+## 7. Write Logic-Level / High-Level Code
 
 Python and other modern programming languages are very high-level and flexible, which means that a lot of the results you would like to achieve can be done using very succinct code that relies on high-level operations. Many such operations are already given to you in the programming language or in some existing library.
 
-Here is an example of a good refactoring. Suppose you have a dictionary mapping from a line id to the line's list of elements, and you want to return a dictionary from a line id to the first largest element of the lines's elements list. Each element has a start and end position, and the element's length is defined as: `1+end-start`.
+Here is an example of a good refactoring. Suppose you have a dictionary mapping from a line id to the line's list of elements, and you want to return a dictionary from a line id to the first largest element of the line's elements list. Each element has a start and end position, and the element's length is defined as: `1+end-start`.
 
 The original code:
 
@@ -230,7 +332,7 @@ found_matches = {line_num: self.first_longest_element(values)
                  for line_num, values in section.items()}
 ```
 
-In this code, you can easily see at a high-level the main thing the code is doing: applying `first_longest_element` on each value of the dict. So you clearly see the two main things going on here: 
+In this code, you can easily see at a high-level the main thing the code is doing: applying `first_longest_element` on each value of the dict. So you clearly see the two main things going on here:
 the algorithm (for-loop on a dict), and the inner operation (`first_longest_element`). Also, the operation has a descriptive name which clearly shows what it does. Now we add:
 
 ```python
@@ -251,7 +353,7 @@ class TagElement:
 
 <a id="encapsulation"/>
 
-## 7. Encapsulation
+## 8. Encapsulation
 
 Encapsulation is a basic principle of <a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank">Object Oriented Programming</a> (OOP). Read about <a href="https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)" target="_blank">encapsulation</a>, and related concepts: <a href="https://en.wikipedia.org/wiki/Coupling_(computer_programming)#Disadvantages_of_tight_coupling" target="_blank">disadvantages of tight coupling</a>, <a href="https://en.wikipedia.org/wiki/Information_hiding" target="_blank">information hiding</a>, <a href="https://en.wikipedia.org/wiki/Separation_of_concerns" target="_blank">separation of concerns</a>, <a href="https://en.wikipedia.org/wiki/Modular_design" target="_blank">modular design</a>.
 
@@ -259,13 +361,13 @@ The main idea is to put inside a class all members and methods that are relevant
 
 <a id="put-in-a-class"/>
 
-### 7.1. Put in a class
+### 8.1. Put in a class
 
 **All queries about a class that depend only on the class content should be a method in the class**
 
 Sometimes when we define a class, we don't yet define all methods that will be useful for that class. Don't take the current definition of the class as final, you can add new methods as needed.
 
-For example, in a classical <a href="https://en.wikipedia.org/wiki/Natural_language_processing" target="_blank">NLP</a> parser, we my have a class `LexicalElement`, which is created when a `LexicibEntry` matches some sequence of words. `LexicalElement` contains a member `tokens: List[Token]`. At some point, we wanted to get the text which is obtained by concatenating the texts of the `tokens`.
+For example, in a classical <a href="https://en.wikipedia.org/wiki/Natural_language_processing" target="_blank">NLP</a> parser, we may have a class `LexicalElement`, which is created when a `LexiconEntry` matches some sequence of words. `LexicalElement` contains a member `tokens: List[Token]`. At some point, we wanted to get the text which is obtained by concatenating the texts of the `tokens`.
 
 The wrong way to do it is to rely on `line_tokens`, the entire list of tokens of the line where the `LexicalElement` was found, and use:
 
@@ -286,9 +388,9 @@ and then simply use `element.tokens_text`.
 
 <a id="information-hiding"/>
 
-### 7.2. Information Hiding
+### 8.2. Information Hiding
 
-[Information Hiding](https://en.wikipedia.org/wiki/Information_hiding) is the principle of segregating the design decisions of a piece of code that are most likely to change, thus protecting other parts of the program from extensive modification if the design decision is changed. The protection involves providing a stable *interface* which protects the remainder of the program from the implementation.
+<a href="https://en.wikipedia.org/wiki/Information_hiding" target="_blank">Information Hiding</a> is the principle of segregating the design decisions of a piece of code that are most likely to change, thus protecting other parts of the program from extensive modification if the design decision is changed. The protection involves providing a stable *interface* which protects the remainder of the program from the implementation.
 
 **Don't access private members**
 
@@ -306,8 +408,8 @@ define an accessor:
 ```python
 class Foo:
     def __init__(self):
-       _dc: Dict[KeyType, ValueType] = {}
-   
+       self._dc: Dict[KeyType, ValueType] = {}
+
     def get_dc_value(self, value: ValueType) -> Dict[KeyType, ValueType]:
         return self._dc.get(value)
 
@@ -332,9 +434,9 @@ x.set_dc(value)
 
 <a id="use-class-members-instead-of-passing-values-around"/>
 
-### 7.3. Use class members instead of passing values around
+### 8.3. Use class members instead of passing values around
 
-For example, you have a for-loop that goes over some items, and does some calculation. You put this calculation in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#TBD-link)". But you need some variables that may be affected between iterations of the for-loop. So instead of this:
+For example, you have a for-loop that goes over some items, and does some calculation. You put this calculation in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)". But you need some variables that may be affected between iterations of the for-loop. So instead of this:
 
 ```python
 some_var = False
@@ -352,7 +454,7 @@ Do this:
 class SomeClass:
     def __init__(self):
        self.some_var = False
-   
+
     def run(self):
         for item in items:
             self.func(item)
@@ -363,15 +465,15 @@ class SomeClass:
 
 <a id="single-responsibility-principle"/>
 
-## 8. Single-Responsibility Principle
+## 9. Single-Responsibility Principle
 
-The [Single-Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle) (SRP) states that every module, class or function in a computer program should have responsibility over a single part of that program's functionality, and it should [encapsulate](#encapsulation) that part.
+The <a href="https://en.wikipedia.org/wiki/Single-responsibility_principle" target="_blank">Single-Responsibility Principle</a> (SRP) states that every module, class or function in a computer program should have responsibility over a single part of that program's functionality, and it should [encapsulate](#encapsulation) that part.
 
-It is related to the principle of [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns) (SOC), and is one of the five [SOLID](https://en.wikipedia.org/wiki/SOLID) principles.
+It is related to the principle of <a href="https://en.wikipedia.org/wiki/Separation_of_concerns" target="_blank">Separation of Concerns</a> (SOC), and is one of the five <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a> principles.
 
 <a id="separate-builder-from-object"/>
 
-### 8.1. Separate Builder from Object
+### 9.1. Separate Builder from Object
 
 One common application of the SRP is separating the builder of a class from the class itself. Often, we have a situation where we want to instantiate a class `C` from information that was calculated previously (or loaded from a file or a database). According to SRP and SOC, the building functionality of an instance of `C` should be separated from `C` itself.
 
@@ -418,10 +520,10 @@ The sequence is: Instantiating LoadSomeClass with the location of the data (file
 
 <a id="more"/>
 
-## 9. More
+## 10. More
 
-See also: 
+See also:
 
-- [SOLID](https://en.wikipedia.org/wiki/SOLID)
-- [The SOLID Principles](https://www.youtube.com/watch?v=RT-npV1JRKE)
+- <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID</a>
+- <a href="https://www.youtube.com/watch?v=RT-npV1JRKE" target="_blank">The SOLID Principles</a>
 - Don't optimize prematurely - instead, use a profiler to optimize only the parts that really need it.
