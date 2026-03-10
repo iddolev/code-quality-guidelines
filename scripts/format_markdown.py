@@ -128,8 +128,6 @@ def wrap_long_lines(lines: list[str]) -> list[str]:
         else:
             subsequent_indent = _detect_indent(line)
 
-        initial_indent = _detect_indent(line)
-
         wrapped = textwrap.fill(
             line,
             width=MAX_LINE_LENGTH,
@@ -149,10 +147,6 @@ def _is_heading(line: str) -> bool:
 
 def _is_blank(line: str) -> bool:
     return line.strip() == ""
-
-
-def _is_list_line(line: str) -> bool:
-    return _is_list_item_start(line)
 
 
 def _is_frontmatter_fence(line: str) -> bool:
@@ -232,10 +226,10 @@ def fix_heading_and_list_spacing(lines: list[str]) -> list[str]:
         if result and _is_heading(result[-1]):
             if not _is_blank(line):
                 result.append("")
-            elif _is_blank(line):
+            else:
                 trailing_blanks = 0
-                for r in reversed(result):
-                    if _is_blank(r):
+                for prev_line in reversed(result):
+                    if _is_blank(prev_line):
                         trailing_blanks += 1
                     else:
                         break
@@ -305,15 +299,15 @@ def main() -> None:
 
     if args.paths:
         files = []
-        for p in args.paths:
-            path = Path(p)
+        for path_arg in args.paths:
+            path = Path(path_arg)
             if path.is_file():
                 files.append(path.resolve())
             elif path.is_dir():
-                for f in sorted(path.rglob("*.md")):
-                    rel = f.relative_to(REPO_ROOT).as_posix()
-                    if not any(rel.startswith(e) for e in EXCLUDE_PATTERNS):
-                        files.append(f.resolve())
+                for md_file in sorted(path.rglob("*.md")):
+                    relative_posix = md_file.relative_to(REPO_ROOT).as_posix()
+                    if not any(relative_posix.startswith(e) for e in EXCLUDE_PATTERNS):
+                        files.append(md_file.resolve())
     else:
         files = find_markdown_files(REPO_ROOT)
 
@@ -325,8 +319,8 @@ def main() -> None:
     changed_count = 0
 
     print(f"Processing {len(files)} markdown file(s)...\n")
-    for f in files:
-        if process_file(f, dry_run=effective_dry_run):
+    for file_path in files:
+        if process_file(file_path, dry_run=effective_dry_run):
             changed_count += 1
 
     print(f"\n{'Would fix' if effective_dry_run else 'Fixed'}: {changed_count} file(s)")

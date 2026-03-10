@@ -12,6 +12,14 @@ All guidelines are based on real cases observed in code that was
 written by junior software engineers and could be improved.
 Although examples are shown in Python, the principles apply to any programming language.
 
+## Critutal Instructions for the LLM:
+
+CRITICAL: The guidelines instruct about cosmetic/structural changes only! 
+You must preserve the exact semantic behavior of the original code. 
+If applying a guideline would require changing logic, control flow, return values, side effects, 
+error handling behavior, or API contracts - suggest the improvement instead of actually doing it. 
+When in doubt, leave the code unchanged, and ask the user.
+
 ## Table of Contents
 
 1. [Basic Understanding](#basic-understanding)
@@ -26,7 +34,6 @@ Although examples are shown in Python, the principles apply to any programming l
    1. [Put the smaller `if` case first](#put-the-smaller-if-case-first)
    2. [Order `if/elif` branches by likelihood](#order-ifelif-branches-by-likelihood)
    3. [Order methods and functions consistently](#order-methods-and-functions-consistently)
-   4. [Order imports consistently](#order-imports-consistently)
 4. [Function Design](#function-design)
    1. [Limit the Number of Parameters](#limit-the-number-of-parameters)
    2. [Default Values](#default-values)
@@ -416,12 +423,6 @@ class ReportGenerator:
     def _format_header(self): ...
     def _write_to_file(self, path): ...
 ```
-
-<a id="order-imports-consistently"/>
-
-### 3.4. Order imports consistently
-
-Keep your import statements grouped and sorted in a consistent order. In Python, follow <a href="https://peps.python.org/pep-0008/#imports" target="_blank">PEP 8's import ordering</a> (standard library, then third-party packages, then local/project imports, separated by blank lines). Use <a href="https://en.wikipedia.org/wiki/Lint_(software)" target="_blank">linter</a> tools like `ruff` or `flake8` (with `isort`) to enforce this automatically.
 
 <a id="function-design"/>
 
