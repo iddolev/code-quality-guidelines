@@ -124,7 +124,7 @@ In this way:
 
 - It’s easier to find usages of the value by asking the IDE to show usages of the constant, instead of searching for the value itself.
 - An in-place typo like `"aproved"` becomes impossible
-- Your IDE can autocomplete the values and usages of variable
+- Your IDE can autocomplete the values and usages of the variable
 - Renaming a status requires changing only one line.
 
 <a id="comments"/>
@@ -190,7 +190,7 @@ def calculate_score(attempts: int, max_attempts: int) -> float:
 
 ### 2.1. Line Splits
 
-Long lines should be split rather than allow them to overflow beyond approx. 100 characters. They should be split in logical places.
+Long lines should be split rather than allowing them to overflow beyond approx. 100 characters. They should be split in logical places.
 
 In particular, in the definition of a function and the call to a function that has many parameters,
 put each parameter on a separate line. E.g.:
@@ -613,7 +613,7 @@ Why is this better?
 
 ## 7. Utilities Instead of Code Idioms
 
-A "<a href="https://en.wikipedia.org/wiki/Programming_idiom" target="_blank">code Idiom</a>" is a syntactic fragment that recurs frequently across software projects and has a single semantic role. For example in Python, writing a string text into to a text file path, while ensuring the path exists:
+A "<a href="https://en.wikipedia.org/wiki/Programming_idiom" target="_blank">code idiom</a>" is a syntactic fragment that recurs frequently across software projects and has a single semantic role. For example, in Python, writing a string to a text file while ensuring the path exists:
 
 ```python
 import os
