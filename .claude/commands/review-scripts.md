@@ -15,7 +15,7 @@ Do the following:
 - for each rule in the instruction file:
 - apply the rule on the python file (<filename>), and
 - for each violation found, fix the code to comply with the rule
-  and report what you did in tmp/quality_review/<filename>.log 
+  and immediately report what you did by appending text to tmp/quality_review/<filename>.log 
   but do the fix very cautiously, without changing the code's operation and meaning,
  
 CRITICAL: The guidelines instruct about cosmetic/structural changes only! 

@@ -33,6 +33,7 @@ SMART_QUOTES = {
 }
 
 MAX_LINE_LENGTH = 120
+CODE_FENCE_PATTERN = r"^\s*(`{3,}|~{3,})"
 
 
 EXCLUDE_PATTERNS = [
@@ -101,7 +102,7 @@ def _is_inside_code_fence(lines: list[str], index: int) -> bool:
     """Check whether line at index is inside a fenced code block."""
     fence_count = 0
     for i in range(index):
-        if re.match(r"^\s*(`{3,}|~{3,})", lines[i]):
+        if re.match(CODE_FENCE_PATTERN, lines[i]):
             fence_count += 1
     return fence_count % 2 == 1
 
@@ -184,7 +185,7 @@ def fix_heading_and_list_spacing(lines: list[str]) -> list[str]:
     for i in range(start, len(lines)):
         line = lines[i]
 
-        if re.match(r"^\s*(`{3,}|~{3,})", line):
+        if re.match(CODE_FENCE_PATTERN, line):
             in_code_fence = not in_code_fence
             result.append(line)
             continue
@@ -205,9 +206,11 @@ def fix_heading_and_list_spacing(lines: list[str]) -> list[str]:
                 in_list = True
             list_indent_depth = len(_list_continuation_indent(line))
         elif is_continuation:
-            pass  # still inside the list
+            # still inside the list
+            pass
         elif _is_blank(line):
-            pass  # blank lines don't end a list by themselves
+            # blank lines don't end a list by themselves
+            pass
         else:
             if in_list:
                 # Rule 5: blank line after the end of a list
