@@ -221,7 +221,7 @@ write:
  for i in range(1 + len(tokens) - k)]
 ```
 
-**Notice:** Automatic reformatting using PyCharm (Ctrl+Alt+L) sometimes splits lines in bad places, e.g. splits after an opening "\[". So if you use it, please go over the code and make sure lines are split in appropriate places.
+**Notice:** Automatic reformatting using PyCharm (Ctrl+Alt+L) sometimes splits lines in bad places, e.g. splits after an opening "[". So if you use it, please go over the code and make sure lines are split in appropriate places.
 
 <a id="break-long-complex-sections-into-smaller-blocks"/>
 
@@ -464,10 +464,27 @@ This makes call sites cleaner, and adding a new option in the future doesn't cha
 
 ### 4.2. Default Values: Usually boolean default value should be False and not True
 
-Usually it's bad practice to have a boolean parameter of a function have a default value of True
-because not mentioning the parameter gives it a value of True which usually means some positive action that happens
-where the called might not be aware of it.
-See if you can rename the parameter to mean the opposite, with a default value False.
+Usually it's bad practice to have a boolean parameter of a function have a default value of `True`,
+because omitting the parameter silently enables a behavior that the caller might not be aware of.
+See if you can rename the parameter to mean the opposite, with a default value of `False`.
+
+For example, instead of:
+
+```python
+def save_report(report: Report, overwrite: bool = True):
+    ...
+```
+
+Here, a caller who writes `save_report(report)` may not realize they are silently overwriting existing files. Prefer:
+
+```python
+def save_report(report: Report, keep_existing: bool = False):
+    ...
+```
+
+Now the default behavior is the safer one (overwrite), and the caller must explicitly opt in to the alternative.
+
+See also: [Avoid Boolean Flag Parameters](#avoid-boolean-flag-parameters) for cases where a boolean parameter should be eliminated entirely.
 
 <a id="avoid-boolean-flag-parameters"/>
 
@@ -532,7 +549,7 @@ Your code should handle all end cases. In particular:
 
 1. Don't assume correct input. Check for it. Either:
    1. If an incorrect input may be encountered during runtime, check for it and, if needed, raise ValueError or some other appropriate Exception.
-   2. If an incorrect input cannot be encountered during runtime but only during development, you can use `assert` to verify that this is true. Don't use assert statements to check for runtime errors \- Python code can be compiled to remove such statements.
+   2. If an incorrect input cannot be encountered during runtime but only during development, you can use `assert` to verify that this is true. Don't use assert statements to check for runtime errors - Python code can be compiled to remove such statements.
 2. Always end an `if`/`elif` chain with an `else` clause. If there is supposed to be no `else` case, raise `NotImplementedError()` to catch unexpected values. For example, instead of:
 
 ```python
@@ -713,14 +730,14 @@ def first_longest_element(values: List[TagElement]) -> TagElement:
 ```
 
 Here, instead of doing this calculation using low-level operations (remembering the max value seen so far, comparing using `<=`, etc.), we use the high-level operator `max`. If we don't want `max` directly on the value, we can use the `key` argument and give it:
-`lambda element: 1 + element.end - element.pos`.
+`lambda element: 1 + element.end_pos - element.start_pos`.
 But that is too specific to be defined here - according to OOP, the property of an element (such as its length) should be defined in the class itself. So we add a `__len__` method to the TagElement class:
 
 ```python
 class TagElement:
     ...
     def __len__(self) -> int:
-        return 1 + self.end - self.pos
+        return 1 + self.end_pos - self.start_pos
 ```
 
 <a id="encapsulation"/>
