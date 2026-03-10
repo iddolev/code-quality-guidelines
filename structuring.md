@@ -124,11 +124,38 @@ Also often: nested for-loops with 2 levels would be more readable by extracting 
 
 For example, instead of:
 
-example
+```python
+def settle_accounts(ledgers):
+    for ledger in ledgers:
+        balance = 0
+        for txn in ledger.transactions:
+            if txn.is_void:
+                continue
+            balance += txn.amount
+            if balance < 0:
+                txn.flag_overdraft()
+                balance += txn.penalty
+        ledger.final_balance = balance
+```
 
 use:
 
-example
+```python
+def _settle_ledger(ledger):
+    balance = 0
+    for txn in ledger.transactions:
+        if txn.is_void:
+            continue
+        balance += txn.amount
+        if balance < 0:
+            txn.flag_overdraft()
+            balance += txn.penalty
+    ledger.final_balance = balance
+
+def settle_accounts(ledgers):
+    for ledger in ledgers:
+        _settle_ledger(ledger)
+```
 
 <a id="order"/>
 
@@ -170,9 +197,12 @@ This has less indentation, and is easier to debug.
 
 ## 3. Default Values
 
-### Usually boolean default value should be False and not True
+### 3.1. Usually boolean default value should be False and not True
 
-Usually it's bad practice to have a boolean parameter of a function have a default value of True because not mentioning the parameter gives it a value of True which usually means some positive action that happens where the called might not be aware of it. See if you can rename the parameter to mean the opposite, with a default value False.
+Usually it's bad practice to have a boolean parameter of a function have a default value of True 
+because not mentioning the parameter gives it a value of True which usually means some positive action that happens 
+where the called might not be aware of it. 
+See if you can rename the parameter to mean the opposite, with a default value False.
 
 <a id="end-cases"/>
 
@@ -282,10 +312,10 @@ A "<a href="https://en.wikipedia.org/wiki/Programming_idiom" target="_blank">cod
 import os
 import pathlib
 
-path_folder = os.path.dirname(path)
-pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-with open(path, 'w') as f:
-    f.write(text)
+folder_path = os.path.dirname(SOME_PATH)
+pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
+with open(folder_path, 'w') as f:
+    f.write(SOME_TEXT)
 ```
 
 Such "code idioms" should be avoided because it doesn't make sense that every place requiring this functionality will contain it from scratch. You can easily implement a utilities repository that wraps such low-level functions with logical operations, e.g.: `ensure_path`, `save_text_file`, `delete_path`, etc. Then the code looks cleaner:
@@ -293,9 +323,9 @@ Such "code idioms" should be avoided because it doesn't make sense that every pl
 ```python
 from utilities import ensure_path, save_text_file
 
-path_folder = os.path.dirname(path)
-ensure_path(path, exist_ok=True)
-save_text_file(path, text)
+folder_path = os.path.dirname(SOME_PATH)
+ensure_path(folder_path, exist_ok=True)
+save_text_file(folder_path, SOME_TEXT)
 ```
 
 This idea is a special case of the general principle [Don't Repeat Yourself](#don't-repeat-yourself).
@@ -410,11 +440,11 @@ class Foo:
     def __init__(self):
        self._dc: Dict[KeyType, ValueType] = {}
 
-    def get_dc_value(self, value: ValueType) -> Dict[KeyType, ValueType]:
-        return self._dc.get(value)
+    def get_value(self, key: KeyType) -> Dict[KeyType, ValueType]:
+        return self._dc.get(key)
 
 x = Foo(...)
-y = x.get_dc_value(value)
+y = x.get_value(value)
 ```
 
 Note: To protect Foo from misuse, name the dictionary member `_dc`, using the Python [convention](#TBD-link): an underscore `_` prefix indicates a private member.
