@@ -616,7 +616,7 @@ The main idea demonstrated here: The two cases are very similar. The shared part
 
 Other ideas demonstrated here:
 
-1. Instead of: `X >= Y and X <= Z`, you can use: `Y <= X <= Z`.
+1. Instead of: `X >= Y and X < Z`, you can use: `Y <= X < Z`.
 2. Instead of: `X = X op Y`, you can use: `X op= Y`.
    1. Above: `df[out] &= modifier` instead of: `df[out] = modifier & df[out]`
 3. Don't write the negation of a condition by yourself - let the code do it for you
@@ -633,7 +633,7 @@ def foo_node_a(data: pd.DataFrame, node: NodeA):
     data[col] = data[data[col] == node.value]
 
 def foo_node_b(data: pd.DataFrame, node: NodeB):
-    data[col] = data[data[col].in(node.values)]
+    data[col] = data[data[col].isin(node.values)]
 
 def foo_node_c(data: pd.DataFrame, node: NodeC):
     data[col] = data[data[col] <= node.max_value]
@@ -804,7 +804,7 @@ class Foo:
     def __init__(self):
        self._dc: Dict[KeyType, ValueType] = {}
 
-    def get_value(self, key: KeyType) -> Dict[KeyType, ValueType]:
+    def get_value(self, key: KeyType) -> Optional[ValueType]:
         return self._dc.get(key)
 
 x = Foo(...)
