@@ -30,7 +30,8 @@ Although examples are shown in Python, the principles apply to any programming l
    3. [Use class members instead of passing values around](#use-class-members-instead-of-passing-values-around)
 9. [Single-Responsibility Principle](#single-responsibility-principle)
    1. [Separate Builder from Object](#separate-builder-from-object)
-10. [More](#more)
+10. [Naming Conventions](#naming-conventions)
+11. [More](#more)
 
 <a id="visual-flow"/>
 
@@ -466,7 +467,8 @@ x.set_dc(value)
 
 ### 8.3. Use class members instead of passing values around
 
-For example, you have a for-loop that goes over some items, and does some calculation. You put this calculation in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)". But you need some variables that may be affected between iterations of the for-loop. So instead of this:
+For example, you have a for-loop that goes over some items, and does some calculation. You put this calculation in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)". 
+But you need some variables that may be affected between iterations of the for-loop. So instead of this:
 
 ```python
 some_var = False
@@ -478,7 +480,7 @@ def func(item: Item, some_var: bool) -> bool:
     return some_var
 ```
 
-Do this:
+Consider doing this:
 
 ```python
 class SomeClass:
@@ -492,6 +494,8 @@ class SomeClass:
     def func(self, item: Item) -> None:
         ...   # code that may change self.some_var
 ```
+
+**Caveat:** Use this pattern when the class represents a meaningful domain concept, not merely to avoid passing arguments. Wrapping unrelated variables in a class just to reduce function parameters trades explicit data flow for hidden mutable state, which can make the code harder to reason about and debug.
 
 <a id="single-responsibility-principle"/>
 
@@ -548,9 +552,36 @@ class LoadSomeClass:
 
 The sequence is: Instantiating LoadSomeClass with the location of the data (filepath, DB info, etc.), calling its `load` method to get the loaded data. Then feeding this data into the constructor of `BuildSomeClass`, and calling its `build` method, to get the instance of `SomeClass`.
 
+<a id="naming-conventions"/>
+
+## 10. Naming Conventions
+
+Use consistent naming conventions throughout your codebase. Consistent naming makes code easier to read, search, and maintain. 
+
+Specifically in Python, follow the conventions defined in <a href="https://peps.python.org/pep-0008/#naming-conventions" target="_blank">PEP 8</a>:
+
+| Element             | Convention       | Examples            |
+|---------------------|------------------|---------------------|
+| Files / modules     | `snake_case`     | `data_loader.py`    |
+| Packages            | `lowercase`      | `mypackage`         |
+| Variables           | `snake_case`     | `max_retries`       |
+| Functions           | `snake_case`     | `calculate_score()` |
+| Methods             | `snake_case`     | `get_user_name()`   |
+| Classes             | `PascalCase`     | `DataProcessor`     |
+| Constants           | `UPPER_SNAKE_CASE` | `MAX_BUFFER_SIZE`   |
+| Type variables      | `PascalCase`     | `KeyType`, `T`      |
+| Private members     | `_leading_underscore` | `_internal_cache`   |
+
+Beyond following a convention table, keep these principles in mind:
+
+1. **Use descriptive names.** A variable name should convey its purpose. Prefer `remaining_attempts` over `r` or `tmp`. Single-letter names are acceptable only for short-lived loop indices or well-known conventions (e.g. `i`, `x`, `df`).
+2. **Booleans should read as conditions.** Use prefixes like `is_`, `has_`, `should_`, or `can_` so that `if` statements read naturally, e.g. `if is_valid:` rather than `if valid:`.
+3. **Avoid abbreviations** unless they are universally understood in the domain (e.g. `url`, `html`, `db`). Prefer `configuration` over `cfg`, `message` over `msg`.
+4. **Be consistent across the codebase.** If one module calls it `user_id`, don't call it `userId` or `uid` elsewhere. Pick one term for each concept and stick with it.
+
 <a id="more"/>
 
-## 10. More
+## 11. More
 
 See also:
 
