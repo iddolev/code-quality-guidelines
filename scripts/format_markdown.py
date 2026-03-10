@@ -269,7 +269,27 @@ def process_file(path: Path, dry_run: bool = False) -> bool:
     return True
 
 
-def main() -> None:
+def _collect_files(path_args: list[str]) -> list[Path]:
+    """Collect markdown files from explicit paths, or all repo files if none given."""
+    if not path_args:
+        return find_markdown_files(REPO_ROOT)
+
+    files = []
+    for path_arg in path_args:
+        path = Path(path_arg)
+        if path.is_file():
+            files.append(path.resolve())
+        elif path.is_dir():
+            for md_file in sorted(path.rglob("*.md")):
+                relative_path = md_file.relative_to(REPO_ROOT).as_posix()
+                if not any(relative_path.startswith(pattern)
+                           for pattern in EXCLUDE_PATTERNS):
+                    files.append(md_file.resolve())
+    return files
+
+
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Format markdown files according to project guidelines."
     )
@@ -288,36 +308,26 @@ def main() -> None:
         action="store_true",
         help="Exit with code 1 if any files need formatting (for CI).",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    if args.paths:
-        files = []
-        for path_arg in args.paths:
-            path = Path(path_arg)
-            if path.is_file():
-                files.append(path.resolve())
-            elif path.is_dir():
-                for md_file in sorted(path.rglob("*.md")):
-                    relative_path = md_file.relative_to(REPO_ROOT).as_posix()
-                    if not any(relative_path.startswith(pattern)
-                               for pattern in EXCLUDE_PATTERNS):
-                        files.append(md_file.resolve())
-    else:
-        files = find_markdown_files(REPO_ROOT)
+
+def main() -> None:
+    args = _parse_args()
+    files = _collect_files(args.paths)
 
     if not files:
         print("No markdown files found.")
         return
 
-    effective_dry_run = args.dry_run or args.check
+    is_dry_run = args.dry_run or args.check
     changed_count = 0
 
     print(f"Processing {len(files)} markdown file(s)...\n")
     for file_path in files:
-        if process_file(file_path, dry_run=effective_dry_run):
+        if process_file(file_path, dry_run=is_dry_run):
             changed_count += 1
 
-    print(f"\n{'Would fix' if effective_dry_run else 'Fixed'}: {changed_count} file(s)")
+    print(f"\n{'Would fix' if is_dry_run else 'Fixed'}: {changed_count} file(s)")
 
     if args.check and changed_count > 0:
         sys.exit(1)
