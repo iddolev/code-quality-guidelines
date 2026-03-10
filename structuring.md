@@ -28,8 +28,8 @@ Although examples are shown in Python, the principles apply to any programming l
    3. [Order methods and functions consistently](#order-methods-and-functions-consistently)
    4. [Order imports consistently](#order-imports-consistently)
 4. [Function Design](#function-design)
-   1. [Default Values](#default-values)
-   2. [Limit the Number of Parameters](#limit-the-number-of-parameters)
+   1. [Limit the Number of Parameters](#limit-the-number-of-parameters)
+   2. [Default Values](#default-values)
    3. [Avoid Boolean Flag Parameters](#avoid-boolean-flag-parameters)
    4. [Prefer Pure Functions](#prefer-pure-functions)
 5. [End Cases](#end-cases)
@@ -427,18 +427,9 @@ Keep your import statements grouped and sorted in a consistent order. In Python,
 
 ## 4. Function Design
 
-<a id="default-values"/>
-
-### 4.1. Default Values: Usually boolean default value should be False and not True
-
-Usually it's bad practice to have a boolean parameter of a function have a default value of True
-because not mentioning the parameter gives it a value of True which usually means some positive action that happens
-where the called might not be aware of it.
-See if you can rename the parameter to mean the opposite, with a default value False.
-
 <a id="limit-the-number-of-parameters"/>
 
-### 4.2. Limit the Number of Parameters
+### 4.1. Limit the Number of Parameters
 
 A function with many parameters is hard to read, call correctly, and maintain. As a rule of thumb, aim for **3 or fewer** parameters. When you find yourself adding a 4th or 5th parameter, consider grouping related parameters into a dataclass or configuration object.
 
@@ -468,6 +459,15 @@ def send_report(config: ReportConfig):
 ```
 
 This makes call sites cleaner, and adding a new option in the future doesn't change the function signature.
+
+<a id="default-values"/>
+
+### 4.2. Default Values: Usually boolean default value should be False and not True
+
+Usually it's bad practice to have a boolean parameter of a function have a default value of True
+because not mentioning the parameter gives it a value of True which usually means some positive action that happens
+where the called might not be aware of it.
+See if you can rename the parameter to mean the opposite, with a default value False.
 
 <a id="avoid-boolean-flag-parameters"/>
 
