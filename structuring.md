@@ -73,7 +73,7 @@ Specifically in Python, follow the conventions defined in <a href="https://peps.
 Beyond following a convention table, keep these principles in mind:
 
 1. **Be consistent across the codebase.** If one module calls it `user_id`, don't call it `userId` or `uid` elsewhere. Pick one term for each concept and stick with it.
-2. **Use descriptive names.** A variable name should convey its purpose. Prefer `remaining_attempts` over `r` or `tmp`. Single-letter names are acceptable only for short-lived loop indices or well-known conventions (e.g. `i`, `x`, `df`).
+2. **Use descriptive names.** A variable name should convey its purpose. Prefer `remaining_attempts` over `r` or `tmp`. Single-letter names are acceptable only for short-lived loop indices or well-known conventions (e.g. `i`, `x`, `df` in data-science code).
 3. **Avoid abbreviations** unless they are universally understood in the domain (e.g. `url`, `html`, `db`). Prefer `configuration` over `cfg`, `message` over `msg`.
 4. **Names should match their behavior.** A function named `get_X` indicates that it returns an object X of a relevant type. It’s bad practice to use this name for a function that calculates X (and e.g. puts it in a private class member) and returns `None`. Similarly, `clean_text(text: str) -> List[str]` is a bad name because it doesn’t tell us about the returned list. A correct name would be e.g. `clean_and_tokenize_text`.
 5. **Pay attention to singular/plural names.** A variable containing a list of strings may be called `codes` but (usually) not `code`.
@@ -193,7 +193,7 @@ def calculate_score(attempts: int, max_attempts: int) -> float:
 
 ### 2.1. Line Splits
 
-Long lines should be split rather than allowing them to overflow beyond approx. 100 characters. They should be split in logical places.
+Long lines should be split rather than allowing them to overflow beyond 100 characters. They should be split in logical places.
 
 In particular, in the definition of a function and the call to a function that has many parameters,
 put each parameter on a separate line. E.g.:
@@ -549,7 +549,7 @@ Your code should handle all end cases. In particular:
 
 1. Don't assume correct input. Check for it. Either:
    1. If an incorrect input may be encountered during runtime, check for it and, if needed, raise ValueError or some other appropriate Exception.
-   2. If an incorrect input cannot be encountered during runtime but only during development, you can use `assert` to verify that this is true. Don't use assert statements to check for runtime errors - Python code can be compiled to remove such statements.
+   2. If an incorrect input cannot be encountered during runtime but only during development, you can use `assert` to verify that this is true. Don't use assert statements to check for runtime errors - Python's `-O` flag strips all `assert` statements from the compiled bytecode, so they are not guaranteed to run in production.
 2. Always end an `if`/`elif` chain with an `else` clause. If there is supposed to be no `else` case, raise `NotImplementedError()` to catch unexpected values. Skipping this is fragile: if a new case is introduced later, the function silently returns `None` instead of failing loudly.
 
 For example, instead of:
@@ -614,13 +614,11 @@ df[out] &= modifier
 
 The main idea demonstrated here: The two cases are very similar. The shared parts (i.e. applying a function on a column, modifying `df[out]`) are factored out and written just once.
 
-Other ideas demonstrated here:
+**Tip:** The refactored code also demonstrates a few smaller improvements:
 
 1. Instead of: `X >= Y and X < Z`, you can use: `Y <= X < Z`.
-2. Instead of: `X = X op Y`, you can use: `X op= Y`.
-   1. Above: `df[out] &= modifier` instead of: `df[out] = modifier & df[out]`
-3. Don't write the negation of a condition by yourself - let the code do it for you
-   1. Above, in the corrected code: `in_range` is written once, and the negation is calculated using `~`.
+2. Instead of: `X = X op Y`, you can use: `X op= Y` (above: `df[out] &= modifier`).
+3. Don't write the negation of a condition by yourself - let the code do it for you (above: `in_range` is written once, and the negation is calculated using `~`).
 
 <a id="use-polymorphism"/>
 
