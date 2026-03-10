@@ -149,6 +149,25 @@ if some_condition:
     do_something
 ```
 
+Additional guidelines:
+
+1. **Comments should explain "why", not "what".** The code already shows what it does. A comment like `# increment counter` above `counter += 1` adds nothing. A comment like `# retry counter resets after a successful handshake` explains intent that the code alone cannot convey.
+2. **Don't leave stale comments.** A wrong or outdated comment is worse than no comment. When you change code, update or remove the associated comments.
+3. **TODOs should have context.** Write `# TODO(name): reason` rather than a bare `# TODO`. A TODO without context becomes permanent clutter that no one dares to remove.
+4. **Use docstrings for functions and classes.** Describe the purpose, parameters, and return value. Docstrings are part of the interface (the programming language supports them) and are distinct from inline comments that explain implementation details. For example, in Python:
+
+````python
+def calculate_score(attempts: int, max_attempts: int) -> float:
+    """
+    Return a normalized score between 0 and 1 based on the number of attempts.
+
+    :param attempts: The number of attempts made.
+    :param max_attempts: The maximum allowed attempts.
+    :return: A float where 1.0 means first-try success and 0.0 means all attempts used.
+    """
+    return max(0.0, 1 - attempts / max_attempts)
+````
+
 ## 2. Visual Flow
 
 <a id="line-splits"/>
