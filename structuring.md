@@ -514,7 +514,7 @@ def load_data_from_disk(source: str):
 
 This makes every call site self-documenting. The reader never has to look up what `True` or `False` means.
 
-Note: this guideline applies when the boolean selects between **different behaviors**. A boolean that slightly modifies the same behavior (e.g. `verbose=True` adding log output) is fine.
+Note: this guideline applies when the boolean selects between **different behaviors**. A boolean that slightly modifies the same behavior (e.g. `verbose=True` adding log output) is fine. For booleans you do keep, see [Default Values](#default-values) for why the default should usually be `False`.
 
 <a id="prefer-pure-functions"/>
 
@@ -550,29 +550,35 @@ Your code should handle all end cases. In particular:
 1. Don't assume correct input. Check for it. Either:
    1. If an incorrect input may be encountered during runtime, check for it and, if needed, raise ValueError or some other appropriate Exception.
    2. If an incorrect input cannot be encountered during runtime but only during development, you can use `assert` to verify that this is true. Don't use assert statements to check for runtime errors - Python code can be compiled to remove such statements.
-2. Always end an `if`/`elif` chain with an `else` clause. If there is supposed to be no `else` case, raise `NotImplementedError()` to catch unexpected values. For example, instead of:
+2. Always end an `if`/`elif` chain with an `else` clause. If there is supposed to be no `else` case, raise `NotImplementedError()` to catch unexpected values. Skipping this is fragile: if a new case is introduced later, the function silently returns `None` instead of failing loudly.
+
+For example, instead of:
 
 ```python
-def direction_label(dx):
-    if dx > 0:
-        return "right"
-    elif dx < 0:
-        return "left"
-    elif dx == 0:
-        return "none"
+def get_permissions(role: str):
+    if role == "admin":
+        return ALL_PERMISSIONS
+    elif role == "editor":
+        return EDIT_PERMISSIONS
+    elif role == "viewer":
+        return VIEW_PERMISSIONS
 ```
 
-use:
+Here, when a `"moderator"` role is added to the system later, this function silently returns `None`, which may cause bugs far from the source. Use:
 
 ```python
-def direction_label(dx):
-    if dx > 0:
-        return "right"
-    elif dx < 0:
-        return "left"
+def get_permissions(role: str):
+    if role == "admin":
+        return ALL_PERMISSIONS
+    elif role == "editor":
+        return EDIT_PERMISSIONS
+    elif role == "viewer":
+        return VIEW_PERMISSIONS
     else:
-        return "none"
+        raise NotImplementedError(f"Unknown role: {role}")
 ```
+
+Now, an unhandled role fails immediately with a clear message.
 
 <a id="don't-repeat-yourself"/>
 
@@ -825,32 +831,32 @@ x.set_dc(value)
 
 ### 9.3. Use class members instead of passing values around
 
-For example, you have a for-loop that goes over some items, and does some calculation. You put this calculation in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)".
-But you need some variables that may be affected between iterations of the for-loop. So instead of this:
+For example, suppose you are processing a list of log entries and need to track whether you are currently inside an error block (which spans multiple entries). You put the per-entry logic in a separate function according to the principle "[Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)".
+But the `inside_error_block` state carries across iterations. So instead of passing it back and forth:
 
 ```python
-some_var = False
-for item in items:
-    some_var = func(item, some_var)
+inside_error_block = False
+for entry in log_entries:
+    inside_error_block = process_entry(entry, inside_error_block)
 
-def func(item: Item, some_var: bool) -> bool:
-    ...   # code that may change some_var
-    return some_var
+def process_entry(entry: LogEntry, inside_error_block: bool) -> bool:
+    ...   # code that may change inside_error_block
+    return inside_error_block
 ```
 
-Consider doing this:
+Consider encapsulating the state in a class:
 
 ```python
-class SomeClass:
+class LogProcessor:
     def __init__(self):
-       self.some_var = False
+       self.inside_error_block = False
 
-    def run(self):
-        for item in items:
-            self.func(item)
+    def run(self, log_entries: List[LogEntry]):
+        for entry in log_entries:
+            self.process_entry(entry)
 
-    def func(self, item: Item) -> None:
-        ...   # code that may change self.some_var
+    def process_entry(self, entry: LogEntry) -> None:
+        ...   # code that may change self.inside_error_block
 ```
 
 **Caveat:** Use this pattern when the class represents a meaningful domain concept, not merely to avoid passing arguments. Wrapping unrelated variables in a class just to reduce function parameters trades explicit data flow for hidden mutable state, which can make the code harder to reason about and debug.
