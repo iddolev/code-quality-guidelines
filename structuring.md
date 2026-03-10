@@ -17,6 +17,7 @@ Although examples are shown in Python, the principles apply to any programming l
 1. [Basic Understanding](#basic-understanding)
    1. [Naming Conventions](#naming-conventions)
    2. [Avoid Magic Values](#avoid-magic-values)
+   3. [Comments](#comments)
 2. [Visual Flow](#visual-flow)
    1. [Line Splits](#line-splits)
    2. [Break Long/Complex Sections Into Smaller Blocks](#break-long-complex-sections-into-smaller-blocks)
@@ -123,7 +124,7 @@ In this way:
 - Your IDE can autocomplete the values and usages of variable
 - Renaming a status requires changing only one line.
 
-<a id="visual-flow"/>
+<a id="comments"/>
 
 ### 1.3. Comments
 
@@ -177,6 +178,8 @@ def calculate_score(attempts: int, max_attempts: int) -> float:
     """
     return max(0.0, 1 - attempts / max_attempts)
 ````
+
+<a id="visual-flow"/>
 
 ## 2. Visual Flow
 
