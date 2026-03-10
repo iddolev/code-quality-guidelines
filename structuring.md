@@ -34,8 +34,8 @@ Although examples are shown in Python, the principles apply to any programming l
    4. [Prefer Pure Functions](#prefer-pure-functions)
 5. [End Cases](#end-cases)
 6. [Don't Repeat Yourself](#don't-repeat-yourself)
-  1. TBD
-  2. TBD 
+   1. [Factor Out Conditional Differences](#factor-out-conditional-differences)
+   2. [Use Polymorphism](#use-polymorphism)
 7. [Utilities Instead of Code Idioms](#utilities-instead-of-code-idioms)
 8. [Write Logic-Level / High-Level Code](#write-logic-level-high-level-code)
 9. [Encapsulation](#encapsulation)
@@ -677,20 +677,19 @@ A "<a href="https://en.wikipedia.org/wiki/Programming_idiom" target="_blank">cod
 import os
 import pathlib
 
-folder_path = os.path.dirname(SOME_PATH)
+folder_path = os.path.dirname(SOME_FILEPATH)
 pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
-with open(folder_path, 'w') as f:
+with open(SOME_FILEPATH, 'w') as f:
     f.write(SOME_TEXT)
 ```
 
 Such "code idioms" should be avoided because it doesn't make sense that every place requiring this functionality will contain it from scratch. You can easily implement a utilities repository that wraps such low-level functions with logical operations, e.g.: `ensure_path`, `save_text_file`, `delete_path`, etc. Then the code looks cleaner:
 
 ```python
-from utilities import ensure_path, save_text_file
+from utilities import ensure_folder_path, save_text_file
 
-folder_path = os.path.dirname(SOME_PATH)
-ensure_path(folder_path, exist_ok=True)
-save_text_file(folder_path, SOME_TEXT)
+ensure_folder_path(os.path.dirname(SOME_FILEPATH))
+save_text_file(SOME_FILEPATH, SOME_TEXT)
 ```
 
 This idea is a special case of the general principle [Don't Repeat Yourself](#don't-repeat-yourself).
