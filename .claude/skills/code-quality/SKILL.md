@@ -1,8 +1,6 @@
 ---
 name: code-quality
-description: |
-  Run a comprehensive code quality review on a Python file. 
-  Covers naming, comments, formatting, function design, DRY, encapsulation, and more."
+description: Run a comprehensive code quality review on a Python file
 argument-hint: <python-filepath>
 ---
 
