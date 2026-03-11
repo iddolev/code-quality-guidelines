@@ -23,6 +23,7 @@ Run each of these tool commands and collect their output:
 1. `/cq:naming-pep8 $ARGUMENTS`
 2. `/cq:comment-docstrings $ARGUMENTS`
 3. `/cq:comment-todo-format $ARGUMENTS`
+4. `/cq:visual-line-length $ARGUMENTS`
 
 [TBD: add more]
 
@@ -70,3 +71,12 @@ If applying a guideline would require changing logic, control flow,
 return values, side effects, error handling behavior, or API contracts - 
 don't actually do it but instead list it as a SUGGESTION and not as an auto-fix.
 When in doubt, leave the code unchanged, and ask the user.
+
+## Ignore unwanted items
+
+Do a final pass on the log file you created, and remove from it:
+
+- Any item that has PEP 257 / D102 on a private function
+- Any item of PEP 257 / D103 on the `main()` function.
+- Any item of PEP 257 / D401 on a boolean function.
+ 
