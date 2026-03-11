@@ -1,0 +1,22 @@
+[project]
+name = "code-quality-guidelines"
+version = "0.1.0"
+dependencies = []
+
+[tool.ruff]
+exclude = ["venv", "sandbox", "tmp"]
+
+[tool.pylint.master]
+ignore = ["venv", "sandbox", "tmp"]
+
+[tool.bandit]
+exclude_dirs = ["venv", "sandbox", "tmp"]
+
+[tool.vulture]
+exclude = ["venv", "sandbox", "tmp"]
+
+[tool.radon]
+exclude = "venv/*,sandbox/*,tmp/*"
+
+[tool.deptry]
+exclude = ["venv", "sandbox", "tmp"]

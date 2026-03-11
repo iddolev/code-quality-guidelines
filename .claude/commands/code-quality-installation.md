@@ -4,7 +4,7 @@ last_updated: 2026-03-11
 description: Install ruff and pylint for code quality linting and formatting
 ---
 
-For each <program> of: ruff, pylinst, radon: 
+For each <program> of: ruff, pylint, pyright, vulture, radon, bandit, deptry, pip-audit: 
 check if <program> is already installed by running:
 
 ```

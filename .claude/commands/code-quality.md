@@ -1,54 +1,35 @@
 ---
-name: code-quality
-description: Run a comprehensive code quality review on a Python file
-argument-hint: <python-filepath>
+description: "Run python code quality tool suite on file or folder"
+argument-hint: <filepath>
 ---
 
 # Code Quality Review
 
-Run ALL code quality checks on the file `$ARGUMENTS`.
+Run code quality checks on the python file or folder `$ARGUMENTS`.
 
-First, verify `$ARGUMENTS` exists and is a filepath <python-filepath> to a python file. 
-If it's not, issue an error message and STOP execution.
+## Run instructions
 
-## Strategy
+If the folder tmp/quality_review does not exist, create it.
 
-Run checks in three tiers. 
-Checks cannot be run in parallel because they can modify the file, and we don't want race conditions.
+If `$ARGUMENTS` is missing or points to a file which is not a python file (ends with ".py") 
+then print an erro message and STOP execution.
 
-### Tier 1 — Deterministic tool checks
+Run .claude/scripts/code-quality.bat and give it `$ARGUMENTS` as input.
 
-Run each of these tool commands and collect their output:
-
-1. `/cq:naming-pep8 $ARGUMENTS`
-2. `/cq:comment-docstrings $ARGUMENTS`
-3. `/cq:comment-todo-format $ARGUMENTS`
-4. `/cq:visual-line-length $ARGUMENTS`
-5. `/cq:visual-complexity $ARGUMENTS`
-6. `/cq:func-param-count $ARGUMENTS`
-
-[TBD: add more]
-
-### Tier 2 — Deterministic script checks (run all in parallel)
-
-[TBD: fill]
-
-### Tier 3 — LLM-assisted review (run after reading the file)
-
-[TBD: fill]
+<a id="output-format"/>
 
 ## Output format
 
-Whenever you are invoked:
-1. If the folder tmp/quality_review does not exist, create it.
-2. Obtain the current date and time.
-3. Produce a new structured report in tmp/quality_review/<python-filename>_<current date and time as YYYYMMDDhhmm>.log.
-The report should have these sections:
+Based on the results, create a log file as follows:
+obtain the current date and time, 
+and produce a new structured report in tmp/quality_review/<name>_<current date and time as YYYYMMDDhhmm>.log
+(where <name> is the file name or folder name from `$ARGUMENTS`).
+The report should have the following sections 1-4:
 
 ### 1. Summary
 
 - Total findings by severity: Error / Warning / Suggestion
-- Total findings by category: Naming / Comments / Formatting / Design / DRY / Encapsulation
+- Total findings by category: (e.g. naming, comments, formatting, design, encapsulation, etc.)
 
 ### 2. Findings (sorted by line number)
 
@@ -57,7 +38,8 @@ For each finding:
 Line {N}: [{CATEGORY}] {SEVERITY} — {description}
   Current: {what the code looks like now}
   Suggested: {what it should look like}
-  Rule: {which guideline this comes from}
+  Tool: {which tool this comes from} 
+  Rule: {which tool guideline this comes from}
   Auto-fixable: Yes/No
 ```
 
@@ -72,11 +54,12 @@ List only the changes that are marked as "Auto-fixable: Yes" and that are SAFE t
 
 ### 4. Manual approval changes
 
-List the changes that are marked as "Auto-fixable: No".
+List all the other items not included in section 3.
 
 ## Ignore unwanted items
 
-Do a final pass on the log file you created, and remove from it:
+Now that you wrote to the log file, 
+do a final pass on the log file, and remove from it:
 
 - Any item that has PEP 257 / D102 on a private function
 - Any item of PEP 257 / D103 on the `main()` function.
