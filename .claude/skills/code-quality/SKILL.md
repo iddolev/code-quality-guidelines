@@ -69,16 +69,9 @@ List only the changes that are marked as "Auto-fixable: Yes" and that are SAFE t
 - Line split / formatting fixes
 - Adding missing `else: raise NotImplementedError(...)` (simple cases only)
 
-Use AskUserQuestion to ask the user whether to apply these safe fixes.
+### 4. Manual approval changes
 
-## CRITICAL SAFETY RULE
-
-CRITICAL: The guidelines instruct about cosmetic/structural changes only! 
-You MUST preserve the exact semantic behavior of the original code. 
-If applying a guideline would require changing logic, control flow, 
-return values, side effects, error handling behavior, or API contracts - 
-don't actually do it but instead list it as a SUGGESTION and not as an auto-fix.
-When in doubt, leave the code unchanged, and ask the user.
+List the changes that are marked as "Auto-fixable: No".
 
 ## Ignore unwanted items
 
@@ -87,4 +80,18 @@ Do a final pass on the log file you created, and remove from it:
 - Any item that has PEP 257 / D102 on a private function
 - Any item of PEP 257 / D103 on the `main()` function.
 - Any item of PEP 257 / D401 on a boolean function.
- 
+
+## Do the fixes
+
+1. Use AskUserQuestion to ask the user whether to apply the safe fixes (from section 3), and act accordingly.
+2. For each item in section 4, propose a suggested edit, 
+   and use AskUserQuestion to ask the user whether to apply it, and act accordingly.
+
+## CRITICAL SAFETY RULE
+
+CRITICAL: The guidelines instruct about cosmetic/structural changes only! 
+You MUST ALWAYS preserve the exact semantic behavior of the original code. 
+If applying a guideline would require changing logic, control flow, 
+return values, side effects, error handling behavior, or API contracts - 
+don't actually do it but instead list it as a SUGGESTION and not as an auto-fix.
+When in doubt, leave the code unchanged, and ask the user.
