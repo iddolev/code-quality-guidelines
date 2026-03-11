@@ -10,7 +10,8 @@ Rules enforced:
 Usage:
     python scripts/format_markdown.py [paths...]
 
-    If no paths are given, all *.md files in the repo are processed (excluding sandbox/ and tmp/ and .git/).
+    If no paths are given, all *.md files in the repo are processed
+    (excluding sandbox/ and tmp/ and .git/).
 """
 
 from __future__ import annotations

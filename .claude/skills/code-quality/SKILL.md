@@ -24,6 +24,7 @@ Run each of these tool commands and collect their output:
 2. `/cq:comment-docstrings $ARGUMENTS`
 3. `/cq:comment-todo-format $ARGUMENTS`
 4. `/cq:visual-line-length $ARGUMENTS`
+5. `/cq:visual-complexity $ARGUMENTS`
 
 [TBD: add more]
 
@@ -61,7 +62,14 @@ Line {N}: [{CATEGORY}] {SEVERITY} — {description}
 
 ### 3. Auto-fixable changes
 
-[TBD]
+List only the changes that are marked as "Auto-fixable: Yes" and that are SAFE to apply automatically:
+
+- Comment placement moves
+- Method reordering within classes
+- Line split / formatting fixes
+- Adding missing `else: raise NotImplementedError(...)` (simple cases only)
+
+Use AskUserQuestion to ask the user whether to apply these safe fixes.
 
 ## CRITICAL SAFETY RULE
 

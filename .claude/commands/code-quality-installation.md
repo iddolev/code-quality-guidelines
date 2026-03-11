@@ -4,9 +4,8 @@ last_updated: 2026-03-11
 description: Install ruff and pylint for code quality linting and formatting
 ---
 
-For each <program> of: ruff, pylinst, do:
-
-1. Check if <program> is already installed by running:
+For each <program> of: ruff, pylinst, radon: 
+check if <program> is already installed by running:
 
 ```
 <program> --version
