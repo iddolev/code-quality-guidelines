@@ -84,8 +84,16 @@ Do a final pass on the log file you created, and remove from it:
 ## Do the fixes
 
 1. Use AskUserQuestion to ask the user whether to apply the safe fixes (from section 3), and act accordingly.
-2. For each item in section 4, propose a suggested edit, 
-   and use AskUserQuestion to ask the user whether to apply it, and act accordingly.
+2. [TBD: Don't do this yet, skip. 
+   For each item in section 4, a suggested edit should be proposed, showing the diff to the user 
+   and using AskUserQuestion to ask the user whether to apply it, and act accordingly, 
+   but this must be done in tandem with first creating comprehensive tests that are specific to verifying 
+   that the change to the code doesn't change anything semantically. 
+   Without such testing we cannot be sure the change is correct.
+   Especially for complex changes 
+   e.g. instead of a function that loops with a state, 
+   defining a class with a state that avoids "message passing" of the state into an update function
+   (e.g. relevant for format_markdown.md function fix_heading_and_list_spacing)]
 
 ## CRITICAL SAFETY RULE
 
