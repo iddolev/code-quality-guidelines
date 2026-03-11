@@ -1,21 +1,24 @@
 ---
 author: Iddo Lev
 last_updated: 2026-03-11
-description: Install ruff for code quality linting and formatting
+description: Install ruff and pylint for code quality linting and formatting
 ---
 
-First, check if ruff is already installed by running:
+For each <program> of: ruff, pylinst, do:
+
+1. Check if <program> is already installed by running:
 
 ```
-ruff --version
+<program> --version
 ```
 
-- If ruff is found (the command succeeds), report the installed version to the user and tell them ruff is already installed. 
+- If <program> is found (the command succeeds), 
+  report the installed version to the user and tell them <program> is already installed. 
   Do NOT reinstall it.
-- If ruff is not found (the command fails), install it using pip:
+- If <program> is not found (the command fails), install it using pip:
 
 ```
-pip install ruff
+pip install <program> --break-system-packages
 ```
 
-Then verify the installation by running `ruff --version` and report the installed version to the user.
+Then verify the installation by running `<program> --version` and report the installed version to the user.
