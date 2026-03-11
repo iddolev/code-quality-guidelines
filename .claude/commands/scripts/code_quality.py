@@ -46,11 +46,13 @@ class QualityRunner:
         cmd = self._cmd_from_template(path, cmd_template)
         self._log_file.write(f"{TOOL_SEPARATOR} {cmd[0]} {TOOL_SEPARATOR}\n")
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             self._write_result(result)
         except FileNotFoundError:
             self._log_file.write(f"ERROR: {cmd[0]} is not installed.\n")
             self._missing_tools.append(cmd[0])
+        except subprocess.TimeoutExpired:
+            self._log_file.write(f"ERROR: {cmd[0]} timed out after 120 seconds.\n")
         self._log_file.write("\n")
 
     def _write_result(self, result: subprocess.CompletedProcess[str]) -> None:
