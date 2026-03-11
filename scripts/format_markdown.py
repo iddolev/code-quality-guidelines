@@ -88,7 +88,7 @@ def _is_url_line(line: str) -> bool:
 
 def _detect_indent(line: str) -> str:
     """Return the leading whitespace of a line."""
-    return re.match(r"^(\s*)", line).group(1)
+    return line[:len(line) - len(line.lstrip())]
 
 
 def _is_list_item_start(line: str) -> bool:
