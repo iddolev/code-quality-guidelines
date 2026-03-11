@@ -2,7 +2,6 @@
 
 import subprocess
 import sys
-from datetime import datetime
 from io import TextIOWrapper
 from pathlib import Path
 
@@ -112,28 +111,20 @@ class QualityRunner:
         self._log_file.write("\n")
 
 
-def _build_log_path(target: Path) -> Path:
-    """Build the log file path: tmp/quality_review/<name>_YYYYMMDDhhmm.log."""
-    name = target.stem if target.is_file() else target.name
-    timestamp = datetime.now().strftime("%Y%m%d%H%M")
-    log_dir = Path("tmp/quality_review")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir / f"{name}_{timestamp}.log"
-
-
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("Error: No path provided.")
-        print("Usage: python code_quality.py <file_or_folder>")
+    if len(sys.argv) < 3:
+        print("Error: Missing arguments.")
+        print("Usage: python code_quality.py <file_or_folder> <output_filepath>")
         sys.exit(1)
 
     path = Path(sys.argv[1])
+    log_path = Path(sys.argv[2])
 
     if not path.exists():
         print(f'Error: "{path}" does not exist.')
         sys.exit(1)
 
-    log_path = _build_log_path(path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(log_path, "w", encoding="utf-8") as log_file:
         runner = QualityRunner(log_file)

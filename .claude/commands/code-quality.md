@@ -9,22 +9,18 @@ Run code quality checks on the python file or folder `$ARGUMENTS`.
 
 ## Run instructions
 
-If the folder tmp/quality_review does not exist, create it.
+If the folder `tmp/quality_review` does not exist, create it.
 
-If `$ARGUMENTS` is missing or points to a file which is not a python file (ends with ".py") 
-then print an erro message and STOP execution.
+Let timestamp = the current date and time in format YYYYMMDDhhmm.
+Let raw_output_path = tmp/quality_review/<name>_<timestamp>.raw.log.
+Let output_path = tmp/quality_review/<name>_<timestamp>.log.
 
-Run .claude/scripts/code-quality.bat and give it `$ARGUMENTS` as input.
+Run .claude/scripts/code-quality.bat and give it two input parameters:`$ARGUMENTS` and raw_output_path.
+Read the output and convert to the following format in output_path:
 
 <a id="output-format"/>
 
 ## Output format
-
-Based on the results, create a log file as follows:
-obtain the current date and time, 
-and produce a new structured report in tmp/quality_review/<name>_<current date and time as YYYYMMDDhhmm>.log
-(where <name> is the file name or folder name from `$ARGUMENTS`).
-The report should have the following sections 1-4:
 
 ### 1. Summary
 
