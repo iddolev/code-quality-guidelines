@@ -2,6 +2,9 @@
 
 import subprocess
 import sys
+import time
+from collections import defaultdict
+from datetime import datetime
 from io import TextIOWrapper
 from pathlib import Path
 
@@ -27,6 +30,7 @@ TAG_ID = 'íd'
 FILE_TAG = 'file'
 TOOL_TAG = 'tool'
 MISSING_TOOLS_TAG = "missing_tools_summary"
+STATS_TAG = "stats"
 LINE_INDENT = " " * 4
 
 
@@ -36,6 +40,8 @@ class QualityRunner:
     def __init__(self, log_file: TextIOWrapper):
         self._log_file = log_file
         self._missing_tools: list[str] = []
+        self._tool_times: dict[str, float] = defaultdict(float)
+        self._start_time: datetime | None = None
 
     @staticmethod
     def _cmd_from_template(path: Path, cmd_template: tuple[str, ...]) -> list[str]:
@@ -47,6 +53,7 @@ class QualityRunner:
         """Run a single tool command and write its output to the log file."""
         cmd = self._cmd_from_template(path, cmd_template)
         self._log_file.write(f'{LINE_INDENT}<{TOOL_TAG} {TAG_ID}="{cmd[0]}">\n')
+        start = time.monotonic()
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             self._write_result(result)
@@ -55,6 +62,7 @@ class QualityRunner:
             self._missing_tools.append(cmd[0])
         except subprocess.TimeoutExpired:
             self._log_file.write(f"{LINE_INDENT * 2}ERROR: {cmd[0]} timed out after 120 seconds.\n")
+        self._tool_times[cmd[0]] += time.monotonic() - start
         self._log_file.write(f"{LINE_INDENT}</{TOOL_TAG}>  <!-- {cmd[0]} -->\n")
 
     def _write_result(self, result: subprocess.CompletedProcess[str]) -> None:
@@ -82,6 +90,7 @@ class QualityRunner:
 
     def run(self, path: Path) -> None:
         """Run file-level and folder-level checks, dispatching by path type."""
+        self._start_time = datetime.now()
         if path.is_file():
             if path.suffix.lower() != ".py":
                 print(f'Error: "{path}" is not a Python file (.py).')
@@ -109,7 +118,21 @@ class QualityRunner:
         self._log_file.write(f"<{MISSING_TOOLS_TAG}>\n")
         for tool in sorted(set(self._missing_tools)):
             self._log_file.write(f"  - {tool}\n")
-        self._log_file.write(f"/{MISSING_TOOLS_TAG}")
+        self._log_file.write(f"/{MISSING_TOOLS_TAG}\n")
+
+    def write_stats(self) -> None:
+        """Write timing statistics for the report."""
+        self._log_file.write(f"<{STATS_TAG}>\n")
+        if self._start_time:
+            self._log_file.write(
+                f"{LINE_INDENT}start_time: {self._start_time.strftime('%Y%m%d %H:%M:%S')}\n"
+            )
+        total = 0.0
+        for tool_name, elapsed in sorted(self._tool_times.items()):
+            self._log_file.write(f"{LINE_INDENT}{tool_name}: {elapsed:.2f}s\n")
+            total += elapsed
+        self._log_file.write(f"{LINE_INDENT}total: {total:.2f}s\n")
+        self._log_file.write(f"</{STATS_TAG}>\n")
 
 
 def main() -> None:
@@ -131,6 +154,7 @@ def main() -> None:
         runner = QualityRunner(log_file)
         runner.run(path)
         runner.write_missing_tools_summary()
+        runner.write_stats()
 
     print(f"Report written to {log_path}")
 
