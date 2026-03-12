@@ -27,7 +27,7 @@ TAG_ID = 'íd'
 FILE_TAG = 'file'
 TOOL_TAG = 'tool'
 MISSING_TOOLS_TAG = "missing_tools_summary"
-LINE_INDENT = " " * 2
+LINE_INDENT = " " * 4
 
 
 class QualityRunner:
@@ -46,25 +46,25 @@ class QualityRunner:
     def _run_tool(self, path: Path, cmd_template: tuple[str, ...]) -> None:
         """Run a single tool command and write its output to the log file."""
         cmd = self._cmd_from_template(path, cmd_template)
-        self._log_file.write(f"<{TOOL_TAG} {TAG_ID}={cmd[0]}>\n")
+        self._log_file.write(f'{LINE_INDENT}<{TOOL_TAG} {TAG_ID}="{cmd[0]}">\n')
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             self._write_result(result)
         except FileNotFoundError:
-            self._log_file.write(f"ERROR: {cmd[0]} is not installed.\n")
+            self._log_file.write(f"{LINE_INDENT * 2}ERROR: {cmd[0]} is not installed.\n")
             self._missing_tools.append(cmd[0])
         except subprocess.TimeoutExpired:
-            self._log_file.write(f"ERROR: {cmd[0]} timed out after 120 seconds.\n")
-        self._log_file.write(f"</{TOOL_TAG}>  <!-- {cmd[0]} -->\n")
+            self._log_file.write(f"{LINE_INDENT * 2}ERROR: {cmd[0]} timed out after 120 seconds.\n")
+        self._log_file.write(f"{LINE_INDENT}</{TOOL_TAG}>  <!-- {cmd[0]} -->\n")
 
     def _write_result(self, result: subprocess.CompletedProcess[str]) -> None:
         """Write a subprocess result to the log, prefixing stderr lines."""
-        for source, prefix in ((result.stdout, ""), (result.stderr, "[stderer ")):
+        for source, prefix in ((result.stdout, ""), (result.stderr, "[stderr] ")):
             if source:
                 for line in source.splitlines():
-                    self._log_file.write(f"{LINE_INDENT}{prefix}{line}\n")
+                    self._log_file.write(f"{LINE_INDENT * 2}{prefix}{line}\n")
         if not result.stdout and not result.stderr:
-            self._log_file.write("No issues found.\n")
+            self._log_file.write(f"{LINE_INDENT * 2}No issues found.\n")
 
     def _check_file(self, path: Path) -> None:
         """Run all file-level quality tools on a single Python file."""
@@ -93,7 +93,7 @@ class QualityRunner:
                 print(f'No Python files found in "{path}".')
                 sys.exit(1)
             for py_file in py_files:
-                self._log_file.write(f"<{FILE_TAG} {TAG_ID}={py_file}>\n")
+                self._log_file.write(f'<{FILE_TAG} {TAG_ID}="{py_file}">\n')
                 self._check_file(py_file)
                 self._log_file.write(f"</{FILE_TAG}>  <!-- {py_file} -->\n\n")
             for cmd_template in FOLDER_TOOLS:
